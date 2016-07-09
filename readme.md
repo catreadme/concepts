@@ -8,6 +8,7 @@ Monads as described in [*Monads for functional programming*](http://homepages.in
 * **01** Introduces a basic evaluator and outlines the concepts of *exceptions*,
 *state* and *output*
 * **02** Presents the monadic solutions to those concepts
+* **03** Concludes with the monad laws
 
 > "Shall I be pure or impure?"
 
