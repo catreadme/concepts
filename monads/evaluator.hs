@@ -100,13 +100,19 @@ evalo (Div t u) =
 
 -- Generates one line of Output
 line :: Term -> Int -> Output
-line t a = "eval (" ++ show t ++ ") <= " ++ show a ++ " "
+line t a = "eval (" ++ show t ++ ") <= " ++ show a ++ "\n"
 
 -- Examples
 
 a' = (Con 5)
-b' = Div (Con 5) (Con 1)
+b' = Div (Con 5) (Div (Con 10) (Con 2))
 
-c' = evalo a' -- ("eval (Con 5) <= 5 ",5)
-d' = evalo b'
--- ("eval (Con 5) <= 5 eval (Con 1) <= 1 eval (Div (Con 5) (Con 1)) <= 5 ",5)
+c' = putStr $ fst $ evalo a'
+-- eval (Con 5) <= 5
+
+d' = putStr $ fst $ evalo b'
+-- eval (Con 5) <= 5
+-- eval (Con 10) <= 10
+-- eval (Con 2) <= 2
+-- eval (Div (Con 10) (Con 2)) <= 5
+-- eval (Div (Con 5) (Div (Con 10) (Con 2))) <= 1
