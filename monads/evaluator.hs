@@ -96,7 +96,7 @@ evalo (Con a) = (line (Con a) a, a)
 evalo (Div t u) =
   let (x,a) = evalo t in
   let (y,b) = evalo u in
-  (x ++ y ++ line (Div t u)(a%b),a%b)
+  (x ++ y ++ line (Div t u) (a%b),a%b)
 
 -- Generates one line of Output
 line :: Term -> Int -> Output
