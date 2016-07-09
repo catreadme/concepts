@@ -80,7 +80,6 @@ t = Con 1
 
 u = evals t 0 -- (1,0)
 v = evals s 0 -- (5,2)
---
 
 {-
   Concept: Output
@@ -103,7 +102,6 @@ line :: Term -> Int -> Output
 line t a = "eval (" ++ show t ++ ") <= " ++ show a ++ "\n"
 
 -- Examples
-
 a' = (Con 5)
 b' = Div (Con 5) (Div (Con 10) (Con 2))
 

@@ -51,14 +51,55 @@ m ★★ k = case m of
 raise :: Exception -> E a
 raise e = Raise e
 
+-- If the term is a constant, the constant is returned as a 'Result a'. If the
+-- term is a quotient, it's subterms are evaluated and the quotient computed.
+-- If there is a "divide by zero" exception a 'Raise e' is returned, otherwise
+-- a 'Return a'
 evale :: Term -> E Int
-evale (Con a) = Return a
-evale (Div t u) = case evale t of
-                    Raise e -> Raise e
-                    Return a ->
-                      case evale u of
-                        Raise e -> Raise e
-                        Return b ->
-                          if b == 0
-                            then raise "divide by zero"
-                            else unite (a % b)
+evale (Con a) = unite a
+evale (Div t u) = evale t ★★ \x -> evale u ★★ \y ->
+  if y == 0
+  then raise "divide by zero"
+  else unite (x % y)
+
+-- Examples
+o = Div (Con 5) (Con 0)
+p = evale o -- Raise "divide by zero"
+
+q = Div (Con 5) (Con 1)
+r = evale q -- Return 5
+
+{-
+  Concept: State
+-}
+-- The state monad
+type S a = State -> (a, State)
+type State = Int
+-- Put a norma value into the state "context"
+units :: a -> S a
+units a = \x -> (a,x)
+-- Apply a value 'S a' to a function of type 'a -> S b' to get a result 'S b'
+-- along with a state
+-- '★★★' :: (Int -> (a, Int)) -> (a -> (Int -> (b, Int))) -> (Int -> (b,Int))
+(★★★) :: S a -> (a -> S b) -> S b
+m ★★★ k = \x -> let (a,y) = m x in
+                let (b,z) = k a y in
+                (b,z)
+
+-- Change the state by adding one and not modifiying the result
+tick :: S ()
+tick = \x -> ((), x + 1)
+
+-- If the term is a constant, the "constant taking a state" is returned.
+-- If the term is a quotient, it's subterms are evaluated with their states.
+-- At the end, the result is computed and the definitive state passed along.
+evals :: Term -> S Int
+evals (Con a) = units a
+evals (Div t u) = evals t ★★★ \x -> evals u ★★★ \y -> tick ★★★ \_ -> units (x % y)
+
+-- Examples
+s = Div (Con 5) (Div (Con 1) (Con 1))
+t = Con 1
+
+u = evals t 0 -- (1,0)
+v = evals s 0 -- (5,2)
