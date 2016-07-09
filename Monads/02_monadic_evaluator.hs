@@ -30,3 +30,35 @@ k = Div (Con 6) (Div (Con 10) (Con 5))
 
 l = eval j -- 5
 m = eval k -- 3
+
+{-
+  Concept: Exceptions
+-}
+-- The exception monad
+data E a = Raise Exception | Return a
+  deriving (Show)
+type Exception = String
+-- Put a norma value into the exception "context"
+unite :: a -> E a
+unite a = Return a
+-- Apply a value 'E a' to a function of type 'a -> E b' to get a result 'E b'
+-- which can be a success 'Return a' or a failure 'Raise e'
+(★★) :: E a -> (a -> E b) -> E b
+m ★★ k = case m of
+  Raise e -> Raise e
+  Return a -> k a
+-- Raise an exception into the monadic "context"
+raise :: Exception -> E a
+raise e = Raise e
+
+evale :: Term -> E Int
+evale (Con a) = Return a
+evale (Div t u) = case evale t of
+                    Raise e -> Raise e
+                    Return a ->
+                      case evale u of
+                        Raise e -> Raise e
+                        Return b ->
+                          if b == 0
+                            then raise "divide by zero"
+                            else unite (a % b)
