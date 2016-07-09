@@ -84,7 +84,7 @@ v = evals s 0 -- (5,2)
 {-
   Concept: Output
 -}
--- An O is an Output paired with the result of a computation
+-- An O is an output paired with the result of a computation
 type O a = (Output,a)
 type Output = String
 
@@ -97,7 +97,7 @@ evalo (Div t u) =
   let (y,b) = evalo u in
   (x ++ y ++ line (Div t u) (a%b),a%b)
 
--- Generates one line of Output
+-- Generates one line of output
 line :: Term -> Int -> Output
 line t a = "eval (" ++ show t ++ ") <= " ++ show a ++ "\n"
 

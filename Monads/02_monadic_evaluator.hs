@@ -10,7 +10,7 @@ data Term = Con Int | Div Term Term
 
 -- The identity monad
 type M a = a
--- Put a norma value into the monadic "context"
+-- Put a normal value into the monadic "context"
 unit :: a -> M a
 unit a = a
 -- Apply a value 'M a' to a function of type 'a -> M b' to get a result 'M b'
@@ -38,7 +38,7 @@ m = eval k -- 3
 data E a = Raise Exception | Return a
   deriving (Show)
 type Exception = String
--- Put a norma value into the exception "context"
+-- Put a normal value into the exception "context"
 unite :: a -> E a
 unite a = Return a
 -- Apply a value 'E a' to a function of type 'a -> E b' to get a result 'E b'
@@ -75,7 +75,7 @@ r = evale q -- Return 5
 -- The state monad
 type S a = State -> (a, State)
 type State = Int
--- Put a norma value into the state "context"
+-- Put a normal value into the state "context"
 units :: a -> S a
 units a = \x -> (a,x)
 -- Apply a value 'S a' to a function of type 'a -> S b' to get a result 'S b'
@@ -103,3 +103,48 @@ t = Con 1
 
 u = evals t 0 -- (1,0)
 v = evals s 0 -- (5,2)
+
+{-
+  Concept: Output
+-}
+-- The output monad
+type O a = (Output,a)
+type Output = String
+-- Put a normal value into the output "context"
+unito :: a -> O a
+unito a = ("", a)
+-- Apply a value 'O a' to a function of type 'a -> O b' to get a result 'O b'
+-- along with the appended values
+(★★★★) :: O a -> (a -> O b) -> O b
+m ★★★★ k = let (x,a) = m in
+           let (y,b) = k a in
+           (x ++ y,b)
+
+-- Change the output by without changing the value
+out :: Output -> O ()
+out x = (x, ())
+
+-- Generates one line of output
+line :: Term -> Int -> Output
+line t a = "eval (" ++ show t ++ ") <= " ++ show a ++ "\n"
+
+-- If the term is a constant, the "constant with output" is returned.
+-- If the term is a quotient, it's subterms are evaluated with their outputs
+-- concatenated.
+evalo :: Term -> O Int
+evalo (Con a) = out (line (Con a) a) ★★★★ \_ -> unito a
+evalo (Div t u) = evalo t ★★★★ \x -> evalo u ★★★★ \y -> out (line (Div t u) (x % y)) ★★★★ \_ -> unito (x % y)
+
+-- Examples
+a' = (Con 5)
+b' = Div (Con 5) (Div (Con 10) (Con 2))
+
+c' = putStr $ fst $ evalo a'
+-- eval (Con 5) <= 5
+
+d' = putStr $ fst $ evalo b'
+-- eval (Con 5) <= 5
+-- eval (Con 10) <= 10
+-- eval (Con 2) <= 2
+-- eval (Div (Con 10) (Con 2)) <= 5
+-- eval (Div (Con 5) (Div (Con 10) (Con 2))) <= 1
