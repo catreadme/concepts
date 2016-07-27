@@ -15,3 +15,9 @@ Monads as described in [*Monads for functional programming*](http://homepages.in
 <!-- -->
 > A monad is a triple (M,unit,★) consisting of a type constructor M and
 two operations of the given polymorphic types.
+
+### Continuation Passing Style
+TODO
+
+### Y-Combinator
+TODO
